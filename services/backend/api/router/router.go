@@ -2,19 +2,19 @@ package router
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"net/http"
-	"students/limit"
-	s "students/api/service"
 	"strings"
+	s "students/api/service"
+	"students/db"
+	"students/limit"
 )
 
 type Router struct {
 	routes map[string]map[string]http.HandlerFunc
 }
 
-func NewRouter(db *sql.DB) *Router {
+func NewRouter(db *db.Queries) *Router {
 	router := &Router{
 		routes: make(map[string]map[string]http.HandlerFunc),
 	}
@@ -22,10 +22,10 @@ func NewRouter(db *sql.DB) *Router {
 	service := s.NewService(db)
 
 	router.addRoute("GET", "/message/{id}", limit.RateLimiter(service.GetProduct).(http.HandlerFunc))
-	router.addRoute("POST", "/message", limit.RateLimiter(service.CreateProduct).(http.HandlerFunc))
 	router.addRoute("GET", "/message", limit.RateLimiter(service.ListAllProducts).(http.HandlerFunc))
-	router.addRoute("PUT", "/update_message", limit.RateLimiter(service.UpdateProduct).(http.HandlerFunc))
-	router.addRoute("DELETE", "/delete_message/{id}", limit.RateLimiter(service.DeleteProduct).(http.HandlerFunc))
+	router.addRoute("POST", "/message", limit.RateLimiter(service.CreateProduct).(http.HandlerFunc))
+	/*router.addRoute("PUT", "/update_message", limit.RateLimiter(service.UpdateProduct).(http.HandlerFunc))
+	router.addRoute("DELETE", "/delete_message/{id}", limit.RateLimiter(service.DeleteProduct).(http.HandlerFunc)) */
 
 	return router
 }
@@ -51,6 +51,7 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 				ctx = context.WithValue(ctx, k, v)
 			}
 			fmt.Printf("Matched route: %s\n", route)
+			fmt.Printf("Calling handler for Method=%s, Path=%s handler=%v ctx=%v\n", method, path, handler, ctx)
 			handler.ServeHTTP(w, req.WithContext(ctx))
 			return
 		}

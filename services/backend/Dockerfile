@@ -6,7 +6,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o ./bin/api ./cmd/api 
+RUN go build .
 
-CMD ["/students_api/bin/api"]
-EXPOSE 8081
+CMD ["./students"]
+EXPOSE 8443
