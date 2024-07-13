@@ -26,18 +26,18 @@ func (env *EnvManager)dataSourceName() string {
 
 func SetupEnv(file string) *EnvManager {
 	env := NewEnvManager()
-	env.loadEnv(file)
+	env.loadEnv()
 	env.DbSource = env.dataSourceName()
 	return env
 }
 
-func (e *EnvManager) loadEnv(file string) {
+func (e *EnvManager) loadEnv() {
 	
-	fd, err := os.Open(file)
+/* 	fd, err := os.Open(file)
 	if err != nil {
 		fmt.Printf("Error opening file, file not found")
 	}
-	defer fd.Close()
+	defer fd.Close() */
 
 	e.dbHost = os.Getenv("DBHOST")
 	e.dbUser = os.Getenv("DBUSER")

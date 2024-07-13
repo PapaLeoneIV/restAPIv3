@@ -1,13 +1,6 @@
-version: '3'
+version: '3.8'
+
 services:
-
-  app:
-    build: .
-    ports:
-      - "8443:8443"
-    depends_on:
-      - db
-
   db:
     image: postgres:alpine
     environment:
@@ -16,4 +9,28 @@ services:
       - POSTGRES_PASSWORD=ric
     ports:
       - "5432:5432"
+    volumes:
+      - ./services/backend/db/dataset:/docker-entrypoint-initdb.d
     restart: always
+    networks:
+      - initexample
+
+  students_api:
+    build: ./services/backend
+    environment:
+      - DBHOST=db
+      - DBUSER=postgres
+      - DBNAME=students
+      - DBPASS=ric
+      - SSLMODE=disable
+      - DBDRIVER=postgres
+    depends_on:
+      - db
+    networks:
+      - initexample
+    ports:
+      - "8443:8443"
+
+networks:
+  initexample:
+    driver: bridge
