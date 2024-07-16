@@ -1,3 +1,4 @@
+import "../../../node_modules/terminal.css/dist/terminal.css";
 import React, { useState, FormEvent } from 'react';
 
 export default function ComplaintForm() {
