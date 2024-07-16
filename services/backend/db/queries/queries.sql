@@ -8,7 +8,7 @@ WHERE id=$6;
 
 -- name: CreateProduct :one
 INSERT INTO students (
-  id, name, subject, body, created_at, updated_at
+  id , name, subject, body, created_at, updated_at
 ) VALUES (
   $1, $2, $3, $4, $5, $6
 )
@@ -19,4 +19,4 @@ DELETE FROM students
 WHERE id = $1;
 
 -- name: GetProducts :many
-SELECT * FROM students;
+SELECT * FROM students; 

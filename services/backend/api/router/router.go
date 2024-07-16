@@ -49,10 +49,14 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			for k, v := range params {
 				fmt.Printf("Route parameter: %s = %s\n", k, v)
 				ctx = context.WithValue(ctx, k, v)
+				handler.ServeHTTP(w, req.WithContext(ctx))
+				fmt.Printf("Matched route: %s\n", route)
+				fmt.Printf("Calling handler for Method=%s, Path=%s handler=%v ctx=%v\n", method, path, handler, ctx)
+				return
 			}
 			fmt.Printf("Matched route: %s\n", route)
 			fmt.Printf("Calling handler for Method=%s, Path=%s handler=%v ctx=%v\n", method, path, handler, ctx)
-			handler.ServeHTTP(w, req.WithContext(ctx))
+			handler.ServeHTTP(w, req)
 			return
 		}
 	}

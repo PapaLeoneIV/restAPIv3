@@ -5,8 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"students/db"
 	"time"
+	"io/ioutil"
+	"bytes"
 )
 
 const contextKey = "id"
@@ -21,7 +24,7 @@ func NewService(d *db.Queries) *Service {
 }
 
 type Message struct {
-	Id     string  `json:"id"`
+	Id     int32  `json:"id"`
 	Name	string  `json:"name"`
 	Subject  string  `json:"subject"`
 	Body 	string  `json:"body"`
@@ -33,33 +36,83 @@ type Message struct {
 
 func (s *Service) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("CreateProduct Handler called")
-
+	if r.Method == http.MethodOptions {
+		fmt.Println("Options request!")
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	fmt.Println("Post request!")
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	ctx := context.Background()
 
-
 	var message db.CreateProductParams
-	if err := json.NewDecoder(r.Body).Decode(&message); err != nil {
+/* 	bodyBytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Unable to read request body", http.StatusBadRequest)
+		return
+	}
+	bodyString := string(bodyBytes)
+	fmt.Printf("Request body: %s\n", bodyString)
+		if err := json.NewDecoder(r.Body).Decode(&message); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		fmt.Printf("Error decoding request body: %v\n", err)
 		return
 	}
-	fmt.Printf("Decoded message: %+v\n", message)
+	fmt.Printf("Decoded message: %+v\n", message) */
 
-	message.CreatedAt = time.Now()
-	message.UpdatedAt = time.Now()
-
-	out, err := s.db.CreateProduct(ctx, message)
-	fmt.Printf("Fetched message: %+v\n", out)
+	bodyBytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "Failed to fetch message", http.StatusInternalServerError)
-		fmt.Printf("Error fetching message: %v\n", err)
+		http.Error(w, "Unable to read request body", http.StatusBadRequest)
+		return
+	}
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+
+	if err := r.ParseMultipartForm(10 << 20); err != nil { // 10MB max memory
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		fmt.Printf("Error parsing request body: %v\n", err)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		fmt.Printf("Error parsing request body: %v\n", err)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(message); err != nil {
-		fmt.Printf("Error encoding response: %v\n", err)
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	
+	
+ 	message.Name = r.FormValue("name")
+	message.Subject = r.FormValue("subject")
+	message.Body = r.FormValue("body")
+	message.CreatedAt = time.Now()
+	message.UpdatedAt = time.Now()
+	
+	if lastId, err := s.db.GetLastIdx(ctx); err != nil {
+		http.Error(w, "Failed to fetch message", http.StatusInternalServerError)
+		fmt.Printf("Error fetching message: %v\n", err)
+		return
+	} else {
+		fmt.Printf("Last ID: %d\n", lastId)
+		message.Id = lastId + 1
+		fmt.Printf("Last ID: %d\n", message.Id)
+
+		out, err := s.db.CreateProduct(ctx, message)
+		fmt.Printf("Fetched message: %+v\n", out)
+		if err != nil {
+			http.Error(w, "Failed to fetch message", http.StatusInternalServerError)
+			fmt.Printf("Error fetching message: %v\n", err)
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
+		if err := json.NewEncoder(w).Encode(message); err != nil {
+			fmt.Printf("Error encoding response: %v\n", err)
+			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		}
 	}
 }
 
@@ -72,25 +125,30 @@ func (s *Service) GetProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Printf("Context ID: %s\n", id)
-
-	out, err := s.db.GetProduct(ctx, id)
-	fmt.Printf("Fetched message: %+v\n", out)
-	if err != nil {
-		http.Error(w, "Failed to fetch message", http.StatusInternalServerError)
-		fmt.Printf("Error fetching message: %v\n", err)
+	if id2 , err := strconv.Atoi(id); err != nil {
+		http.Error(w, "Invalid user ID in context", http.StatusBadRequest)
+		fmt.Println("Invalid user ID in context")
 		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(out); err != nil {
+	} else {
+		out, err := s.db.GetProduct(ctx, int32(id2))
+		fmt.Printf("Fetched message: %+v\n", out)
+		if err != nil {
+			http.Error(w, "Failed to fetch message", http.StatusInternalServerError)
+			fmt.Printf("Error fetching message: %v\n", err)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(out); err != nil {
 		fmt.Printf("Failed to encode message to JSON: %v\n", err)
 		http.Error(w, "Failed to encode message to JSON", http.StatusInternalServerError)
+		}
 	}
 }
 
 func (s *Service) ListAllProducts(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("ListAllProducts Handler called")
-	ctx := r.Context()
-
+	ctx := context.Background()
+	fmt.Printf("Context: %+v\n", ctx)
 	out, err := s.db.GetProducts(ctx)
 	fmt.Printf("Fetched message: %+v\n", out)
 	if err != nil {
@@ -144,15 +202,20 @@ func (s *Service) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Printf("Context ID for delete: %s\n", id)
 
-
-	err := s.db.DeleteProduct(ctx, id)
-	if err != nil {
-		http.Error(w, "Failed to fetch message", http.StatusInternalServerError)
-		fmt.Printf("Error fetching message: %v\n", err)
+	if id2 , err := strconv.Atoi(id); err != nil {
+		http.Error(w, "Invalid user ID in context", http.StatusBadRequest)
+		fmt.Println("Invalid user ID in context")
 		return
-	}
-	fmt.Println("Message deleted successfully")
+	} else {
+		err := s.db.DeleteProduct(ctx, int32(id2))
+		if err != nil {
+			http.Error(w, "Failed to fetch message", http.StatusInternalServerError)
+			fmt.Printf("Error fetching message: %v\n", err)
+			return
+		}
+		fmt.Println("Message deleted successfully")
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Message deleted successfully"))
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Message deleted successfully"))
+	}
 }  

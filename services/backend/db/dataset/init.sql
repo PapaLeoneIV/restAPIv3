@@ -1,5 +1,5 @@
 CREATE TABLE students (
-    id TEXT PRIMARY KEY,
+    id NUMERIC PRIMARY KEY,
     name TEXT NOT NULL,
     subject TEXT NOT NULL,
     body TEXT NOT NULL,

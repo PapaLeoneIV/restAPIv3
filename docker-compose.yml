@@ -15,7 +15,7 @@ services:
     networks:
       - initexample
 
-  students_api:
+  backend:
     build: ./services/backend
     environment:
       - DBHOST=db
@@ -30,6 +30,12 @@ services:
       - initexample
     ports:
       - "8443:8443"
+  frontend:
+    build: ./services/frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - initexample
 
 networks:
   initexample:
