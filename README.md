@@ -20,6 +20,8 @@ Per il backend, ho utilizzato principalmente la standard library di Go, eccetto 
 **Prossimi upgrade backend:**
 
 - Altre misure di sicurezza (JWT, Autenticazione, Autorizzazione)
+- Separazione del container DB dal network degl altri, in modo che sia indipendente (Gestione tramite makefile magari)
+- Implementazione di uno stress tester 
 
 ### Frontend
 
@@ -29,10 +31,14 @@ Per il frontend, ho utilizzato Next.js e Tailwind CSS per migliorare le mie comp
 - Installazione di un unico modulo esterno: `terminal.css`
 - Invio di richieste POST al backend per l'inserimento nel database
 
-### Porte Utilizzate
+### End Points
 
-- **Frontend:** `3000`
-- **Backend:** `8443`
+- **Frontend:** `http://localhost:3000`
+- **Backend:**  `http://localhost:8443/message/{id}` (GET single JSONobject)
+                `http://localhost:8443/message`(GET all JSONobjects)
+                `http://localhost:8443/message` (POST single JSONobject)
+                `http://localhost:8443/update_message/{id}` (UPDATE single DBobject)
+                `http://localhost:8443/delete_message/{id}` (DELETE single DBobject)
 
 ### Problemi Noti
 
