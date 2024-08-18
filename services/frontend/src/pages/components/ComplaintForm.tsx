@@ -62,7 +62,7 @@ export default function ComplaintForm() {
             Subject of the request:
           </label>
           <input
-            className="w-full h-12 p-4 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 terminal-input bg-black text-white"
+            className="w-full h-12 p-4 border border-gray-700 rounded -lg focus:outline-none focus:ring-2 focus:ring-emerald-500 terminal-input bg-black text-white"
             type="text"
             name="subject"
             id="second"
