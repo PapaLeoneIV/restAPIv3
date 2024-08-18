@@ -31,32 +31,15 @@ Per il frontend, ho utilizzato Next.js e Tailwind CSS per migliorare le mie comp
 - Installazione di un unico modulo esterno: `terminal.css`
 - Invio di richieste POST al backend per l'inserimento nel database
 
-## End Points
-### Frontend
+### End Points
 
-    URL: http://localhost:3000
+- **Frontend:** `http://localhost:3000`
+- **Backend:**  `http://localhost:8443/message/{id}` (GET single JSONobject)
+                `http://localhost:8443/message`(GET all JSONobjects)
+                `http://localhost:8443/message` (POST single JSONobject)
+                `http://localhost:8443/update_message/{id}` (UPDATE single DBobject)
+                `http://localhost:8443/delete_message/{id}` (DELETE single DBobject)
 
-### Backend
-
-    GET single JSON object
-        URL: https://localhost:8443/message/{id}
-        Method: GET
-
-    GET all JSON objects
-        URL: https://localhost:8443/message
-        Method: GET
-
-    POST single JSON object
-        URL: https://localhost:8443/message
-        Method: POST
-
-    UPDATE single DB object
-        URL: https://localhost:8443/update_message/{id}
-        Method: PUT
-
-    DELETE single DB object
-        URL: https://localhost:8443/delete_message/{id}
-        Method: DELETE
 ### Problemi Noti
 
 - Il database viene inizializzato con una entry durante la prima creazione del container. È necessario chiuderlo e rilanciare di nuovo il container.
