@@ -1,15 +1,20 @@
-export function ShowSingle() {
-  {
-    /*TODO display the range of id available*/
-  }
-  {
-    /*TODO inserire bottone per invio richiesta sotto l inserimento dell id*/
-  }
-  {
-    /*TODO fetch the data and display it*/
-  }
+import { useState } from "react";
 
-  function getLatestId() {}
+export function ShowSingle() {
+    /*TODO display the range of id available*/
+    /*TODO inserire bottone per invio richiesta sotto l inserimento dell id*/
+    /*TODO fetch the data and display it*/
+
+    (async () => {
+      const res = await fetch('http://localhost:8080/message');
+      if(!res.ok)
+      {
+        console.log('Error fetching the data');
+        return;
+      }
+      const data = await res.json();
+      console.log(data);
+    })();
 
   return (
     <div className="h-auto w-auto bg-gray-800 text-white p-12 rounded-lg shadow-lg terminal-window">
@@ -29,7 +34,7 @@ export function ShowSingle() {
         </label>
       </form>
       <div className="flex justify-center mt-4">
-        <button className="rounded-lg bg-emerald-800 text-white px-4 py-2" onClick={getId()}>
+        <button className="rounded-lg bg-emerald-800 text-white px-4 py-2" >
           Send Request!
         </button>
       </div>

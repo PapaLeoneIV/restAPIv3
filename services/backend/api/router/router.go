@@ -7,6 +7,7 @@ import (
 	"strings"
 	s "students/api/service"
 	"students/db"
+	h_cnf "students/header_cnf"
 	"students/limit"
 )
 
@@ -21,9 +22,9 @@ func NewRouter(db *db.Queries) *Router {
 
 	service := s.NewService(db)
 
-	router.addRoute("GET", "/message/{id}", limit.RateLimiter(service.GetProduct).(http.HandlerFunc))
-	router.addRoute("GET", "/message", limit.RateLimiter(service.ListAllProducts).(http.HandlerFunc))
-	router.addRoute("POST", "/message", limit.RateLimiter(service.CreateProduct).(http.HandlerFunc))
+	router.addRoute("GET", "/message/{id}", limit.RateLimiter(h_cnf.SetHeaders(service.GetProduct)).(http.HandlerFunc))
+	router.addRoute("GET", "/message", limit.RateLimiter(h_cnf.SetHeaders(service.ListAllProducts)).(http.HandlerFunc))
+	router.addRoute("POST", "/message",limit.RateLimiter(h_cnf.SetHeaders(service.CreateProduct)).(http.HandlerFunc))
 	/*router.addRoute("PUT", "/update_message", limit.RateLimiter(service.UpdateProduct).(http.HandlerFunc))
 	router.addRoute("DELETE", "/delete_message/{id}", limit.RateLimiter(service.DeleteProduct).(http.HandlerFunc)) */
 

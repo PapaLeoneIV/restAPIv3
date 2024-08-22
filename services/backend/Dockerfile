@@ -9,4 +9,4 @@ COPY . .
 RUN go build .
 
 CMD ["./students"]
-EXPOSE 8443
+EXPOSE 8080

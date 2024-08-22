@@ -14,7 +14,7 @@ export default function PostForm() {
 
     const formData = new FormData(event.currentTarget);
     try {
-      const response = await fetch('https://localhost:8443/message', {
+      const response = await fetch('http://localhost:8080/message', {
         method: 'POST',
         body: formData,
       });

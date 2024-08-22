@@ -142,6 +142,7 @@ func (s *Service) GetProduct(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Failed to encode message to JSON: %v\n", err)
 		http.Error(w, "Failed to encode message to JSON", http.StatusInternalServerError)
 		}
+		fmt.Fprint(w, out);
 	}
 }
 
